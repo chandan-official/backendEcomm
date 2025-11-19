@@ -8,7 +8,7 @@ import {
 } from "../controller/adminController.js";
 
 import {
-  getAllOrders,
+  getAlladminOrders,
   updateOrderStatus,
 } from "../controller/AdminOrderController.js";
 import { verifyToken, verifyAdmin } from "../token-config/verifyToken.js";
@@ -38,6 +38,15 @@ router.get(
   auth,
   allowRoles("admin"),
   getAllOrders,
+  verifyToken,
+  verifyAdmin
+);
+
+router.get(
+  "/admin-orders",
+  auth,
+  allowRoles("admin"),
+  getAlladminOrders,
   verifyToken,
   verifyAdmin
 );

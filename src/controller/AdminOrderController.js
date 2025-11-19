@@ -3,7 +3,7 @@ import Order from "../models/orderModel.js";
 // ============================
 // GET ALL ORDERS (ADMIN ACCESS)
 // ============================
-export const getAllOrders = async (req, res) => {
+export const getAlladminOrders = async (req, res) => {
   try {
     // Optionally filter only admin orders using query param
     const filter = req.query.adminOnly === "true" ? { isAdminOrder: true } : {};
