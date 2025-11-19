@@ -1,29 +1,28 @@
-const validateLogin = (req, res, next) => {
-  const { email, phone, password } = req.body;
-  const emailRegex = /.+\@.+\..+/;
-  const phoneRegex = /^\d{10}$/;
+import jwt from "jsonwebtoken";
+import User from "../models/adminModel.js";
 
-  if (!email && !phone) {
-    return res
-      .status(400)
-      .json({ message: "Either email or phone number is required" });
+export const auth = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: "No token, authorization denied" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id).select("-password");
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Token invalid or expired" });
   }
-
-  if (email && !emailRegex.test(email)) {
-    return res.status(400).json({ message: "Invalid or missing email" });
-  }
-
-  if (phone && !phoneRegex.test(phone)) {
-    return res.status(400).json({ message: "Invalid phone number" });
-  }
-
-  if (!password || typeof password !== "string" || password.length < 6) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 6 characters long" });
-  }
-
-  next();
 };
 
-export default validateLogin;
+// Role-based access
+export const allowRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return res.status(403).json({ message: "Access denied" });
+    next();
+  };
+};
