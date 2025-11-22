@@ -37,3 +37,5 @@ export const verifyAdmin = (req, res, next) => {
   }
   next();
 };
+
+export default verifyToken;

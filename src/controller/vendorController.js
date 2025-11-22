@@ -89,3 +89,47 @@ export const loginVendor = async (req, res) => {
     return res.status(500).json({ message: "Error logging in vendor", error });
   }
 };
+
+export const getVendorProfile = async (req, res) => {
+  try {
+    const vendor = await Vendor.findById(req.user.id).select("-password");
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    return res.json({ vendor });
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching profile", error });
+  }
+};
+
+export const updateVendorProfile = async (req, res) => {
+  try {
+    const { name, shopName, password } = req.body;
+
+    const vendor = await Vendor.findById(req.user.id);
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    if (name) vendor.name = name;
+    if (shopName) vendor.shopName = shopName;
+    if (password) {
+      const hashed = await bcrypt.hash(password, 10);
+      vendor.password = hashed;
+    }
+
+    await vendor.save();
+
+    return res.json({ message: "Profile updated successfully", vendor });
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating profile", error });
+  }
+};
+
+export default {
+  registerVendor,
+  loginVendor,
+  getVendorProfile,
+  updateVendorProfile,
+};

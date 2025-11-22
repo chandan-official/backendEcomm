@@ -10,6 +10,7 @@ import productRouter from "./src/routes/productRoutes.js";
 import categoryRoutes from "./src/routes/categoryRoutes.js";
 import profileRoutes from "./src/routes/profileRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
+import vendorRoutes from "./src/routes/vendorRoutes.js";
 
 dotenv.config();
 const app = express();

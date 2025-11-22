@@ -25,7 +25,7 @@ export const getAlladminOrders = async (req, res) => {
 // ======================================
 // UPDATE ORDER STATUS (ADMIN CAN UPDATE)
 // ======================================
-export const updateOrderStatus = async (req, res) => {
+export const updateAdminOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;

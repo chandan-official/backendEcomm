@@ -16,7 +16,6 @@ import {
 } from "../controller/vendorProductController.js";
 
 import { verifyToken, verifyVendor } from "../token-config/verifyToken.js";
-import upload from "../middleware/multerUpload.js"; // OPTIONAL: for product images
 
 import {
   getVendorOrders,
@@ -44,18 +43,13 @@ router.put("/profile", vendorAuth, updateVendorProfile);
 router.post(
   "/products",
   vendorAuth,
-  upload.array("images", 6), // remove if no uploads
+
   createVendorProduct
 );
 
 router.get("/products", vendorAuth, getVendorProducts);
 
-router.put(
-  "/products/:id",
-  vendorAuth,
-  upload.array("images", 6), // remove if no uploads
-  updateVendorProduct
-);
+router.put("/products/:id", vendorAuth, updateVendorProduct);
 
 router.delete("/products/:id", vendorAuth, deleteVendorProduct);
 
