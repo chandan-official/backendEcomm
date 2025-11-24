@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production   # 👈 REQUIRED for environment secrets
+    environment: production   
 
     steps:
       - name: Checkout repository
