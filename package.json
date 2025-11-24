@@ -7,7 +7,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "start",
+    "test": "npm run start",
     "start": "node server.js"
   },
   "dependencies": {
