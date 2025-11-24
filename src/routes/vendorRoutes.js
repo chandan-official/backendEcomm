@@ -13,7 +13,7 @@ import {
   updateVendorProduct,
   deleteVendorProduct,
   getVendorProducts,
-} from "../controller/productController.js";
+} from "../controller/VendorProductController.js";
 
 import { verifyToken, verifyVendor } from "../token-config/verifyToken.js";
 
