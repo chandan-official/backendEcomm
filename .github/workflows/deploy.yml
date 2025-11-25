@@ -30,4 +30,4 @@ jobs:
           script: |
             cd /var/www/myapp
             npm install
-            pm2 restart myapp
+            pm2 restart server
