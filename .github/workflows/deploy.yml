@@ -12,19 +12,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Upload project + .env (generated in CI pipeline)
-      - name: Copy files to Hostinger server via SCP
+      # Create .env from GitHub secrets
+      - name: Create .env file
+        run: |
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+
+      # Copy all files to server (same as before)
+      - name: Copy files to Hostinger server via SSH
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
           username: ${{ secrets.HOSTINGER_USER }}
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          source: |
-            .
-            .env
+          source: "./"
           target: "/var/www/myapp"
 
-      # Restart backend on server
+      # Restart PM2 (same as before)
       - name: Restart PM2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -35,3 +40,4 @@ jobs:
             cd /var/www/myapp
             npm install
             pm2 restart server
+
