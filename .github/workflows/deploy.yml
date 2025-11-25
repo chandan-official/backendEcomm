@@ -12,15 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Copy files to Hostinger server via SSH
+      # Upload project + .env (generated in CI pipeline)
+      - name: Copy files to Hostinger server via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOSTINGER_HOST }}
           username: ${{ secrets.HOSTINGER_USER }}
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          source: "."
+          source: |
+            .
+            .env
           target: "/var/www/myapp"
 
+      # Restart backend on server
       - name: Restart PM2
         uses: appleboy/ssh-action@v1.0.3
         with:
