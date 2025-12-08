@@ -22,12 +22,22 @@ import {
   updateVendorOrderStatus,
 } from "../controller/VendorOrderController.js";
 
+import upload from "../middleware/multer.js";
+
 const router = express.Router();
 
 // -------------------------------------------------------------
 // PUBLIC ROUTES
 // -------------------------------------------------------------
-router.post("/register", registerVendor);
+router.post(
+  "/register",
+  upload.fields([
+    { name: "aadhaarFront", maxCount: 1 },
+    { name: "aadhaarBack", maxCount: 1 },
+    { name: "shopImages", maxCount: 10 },
+  ]),
+  registerVendor
+);
 router.post("/login", loginVendor);
 
 // -------------------------------------------------------------

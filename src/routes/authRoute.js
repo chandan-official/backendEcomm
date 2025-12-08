@@ -25,11 +25,7 @@ router.post(
     console.log("Login route hit");
     next();
   },
-  validateLogin,
-  (req, res, next) => {
-    console.log("Login middleware passed");
-    next();
-  },
+
   loginUser
 );
 

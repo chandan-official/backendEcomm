@@ -4,7 +4,7 @@ import User from "../models/authModel.js";
 
 // Register a new user
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
 
   try {
     // Check if user already exists
@@ -21,6 +21,7 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      phone,
     });
 
     await newUser.save();

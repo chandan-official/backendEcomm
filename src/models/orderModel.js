@@ -2,43 +2,29 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    vendorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Vendor",
-      required: true,
-    },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
 
     items: [
       {
-        productId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: Number,
-        price: Number,
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        name: { type: String }, // snapshot
+        image: { type: String }, // snapshot
+        quantity: { type: Number },
+        price: { type: Number },
       },
     ],
-
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
+    totalAmount: { type: Number, required: true },
 
     status: {
       type: String,
       enum: [
-        "pending", // When order is placed
-        "confirmed", // Vendor confirms
-        "packed", // Vendor packs
-        "in_transit", // Pickup + logistics
-        "delivered", // At customer
-        "cancelled", // Vendor or admin cancels
+        "pending",
+        "confirmed",
+        "packed",
+        "in_transit",
+        "delivered",
+        "cancelled",
       ],
       default: "pending",
     },
@@ -53,7 +39,7 @@ const orderSchema = new mongoose.Schema(
     paymentInfo: {
       method: String,
       transactionId: String,
-      status: String, // paid/unpaid/refunded
+      status: String,
     },
 
     address: {

@@ -2,6 +2,7 @@
 import Product from "../models/productModel.js";
 import { uploadBufferToCloudinary } from "../utils/upload.js";
 import slugify from "slugify";
+import { uploadToSpaces } from "../utils/uploadToSpaces.js";
 
 // Create product (with optional images uploaded via multer)
 export const createProduct = async (req, res) => {
@@ -31,6 +32,23 @@ export const createProduct = async (req, res) => {
 
     const slug = slugify(name, { lower: true, strict: true });
 
+    let productImageurls = [];
+
+    if (req.files && req.files.productImageurls) {
+      try {
+        for (const file of req.files.productImageurls) {
+          const fileName = `products/${Date.now()}_${file.originalname}`;
+          const url = await uploadToSpaces(file, fileName);
+          productImageurls.push({ url });
+        }
+      } catch (error) {
+        console.error("Error uploading images to Spaces:", error);
+        return res
+          .status(500)
+          .json({ success: false, message: "Image upload failed" });
+      }
+    }
+
     const product = new Product({
       name,
       slug,
@@ -40,21 +58,12 @@ export const createProduct = async (req, res) => {
       compareAtPrice,
       stock,
       sku,
+      productImageurls: productImageurls,
       attributes: attributes || {},
       tags,
       isActive: isActive === "false" ? false : true,
       vendorId,
     });
-
-    // upload images if present
-    if (req.files && req.files.length > 0) {
-      const uploaded = [];
-      for (const file of req.files) {
-        const result = await uploadBufferToCloudinary(file.buffer, "products");
-        uploaded.push({ url: result.secure_url, public_id: result.public_id });
-      }
-      product.images = uploaded;
-    }
 
     await product.save();
     res.status(201).json({ success: true, product });
@@ -137,32 +146,59 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const body = { ...req.body };
 
+    let body = { ...req.body };
+
+    // Parse JSON strings
     if (body.attributes && typeof body.attributes === "string") {
       body.attributes = JSON.parse(body.attributes);
     }
     if (body.tags && typeof body.tags === "string") {
       body.tags = body.tags.split(",").map((t) => t.trim());
     }
+    if (body.deleteImages && typeof body.deleteImages === "string") {
+      body.deleteImages = JSON.parse(body.deleteImages);
+    }
 
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    Object.assign(product, body);
+    // -------------------------
+    // 1️⃣ DELETE SELECTED IMAGES
+    // -------------------------
+    if (Array.isArray(body.deleteImages)) {
+      for (const imgUrl of body.deleteImages) {
+        const key = imgUrl.split(".com/")[1];
+        await deleteFromSpaces(key);
 
-    // handle images if provided (append)
-    if (req.files && req.files.length > 0) {
-      const uploaded = [];
-      for (const file of req.files) {
-        const result = await uploadBufferToCloudinary(file.buffer, "products");
-        uploaded.push({ url: result.secure_url, public_id: result.public_id });
+        product.productImageurls = product.productImageurls.filter(
+          (p) => p.url !== imgUrl
+        );
       }
-      product.images = product.images.concat(uploaded);
     }
 
+    // -------------------------
+    // 2️⃣ ADD NEW IMAGES (MULTIPLE)
+    // -------------------------
+    if (req.files && req.files.productImageurls) {
+      for (const file of req.files.productImageurls) {
+        const fileName = `products/${Date.now()}_${file.originalname}`;
+        const url = await uploadToSpaces(file, fileName);
+        product.productImageurls.push({ url });
+      }
+    }
+
+    // -------------------------
+    // 3️⃣ UPDATE TEXT FIELDS
+    // -------------------------
+    Object.assign(product, body);
+
     await product.save();
-    res.status(200).json({ success: true, product });
+
+    res.status(200).json({
+      success: true,
+      product,
+    });
   } catch (error) {
     console.error("updateProduct error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -176,6 +212,11 @@ export const deleteProduct = async (req, res) => {
     const product = await Product.findById(id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
+    for (const img of product.images) {
+      const key = img.url.split(".com/")[1]; // extract key
+      await deleteFromSpaces(key);
+    }
+
     // soft delete
     product.isActive = false;
     await product.save();
@@ -183,6 +224,27 @@ export const deleteProduct = async (req, res) => {
     res.status(200).json({ success: true, message: "Product removed (soft)" });
   } catch (error) {
     console.error("deleteProduct error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteProductImage = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    const imageUrl = req.body.imageUrl;
+    const key = imageUrl.split(".com/")[1]; // extract key
+
+    // delete file from DigitalOcean
+    await deleteFromSpaces(key);
+
+    // remove from DB
+    product.images = product.images.filter((img) => img !== imageUrl);
+    await product.save();
+
+    res.json({ success: true, product });
+  } catch (error) {
+    console.error("deleteProductImage error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

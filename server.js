@@ -13,6 +13,8 @@ import categoryRoutes from "./src/routes/categoryRoutes.js";
 import profileRoutes from "./src/routes/profileRoutes.js";
 import adminRoutes from "./src/routes/adminRoutes.js";
 import vendorRoutes from "./src/routes/vendorRoutes.js";
+import Cartrouter from "./src/routes/cartRoutes.js";
+import OrderRoutes from "./src/routes/orderRoutes.js";
 
 dotenv.config();
 
@@ -48,6 +50,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/vendor", vendorRoutes);
+app.use("/api/cart", Cartrouter);
+app.use("/api/orders", OrderRoutes);
 
 // Root
 app.get("/", (req, res) => {
@@ -68,4 +72,3 @@ app.listen(port, () => {
 });
 
 export default app;
-

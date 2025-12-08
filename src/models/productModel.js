@@ -16,7 +16,7 @@ const ProductSchema = new mongoose.Schema(
     currency: { type: String, default: "INR" },
     stock: { type: Number, default: 0 },
     sku: { type: String },
-    images: [
+    productImageurls: [
       {
         url: String,
         public_id: String,

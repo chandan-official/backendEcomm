@@ -9,12 +9,12 @@ import {
   updateCartItem,
   removeCartItem,
   clearCart,
-} from "../controllers/cartController.js";
+} from "../controller/cartController.js";
 
-const router = express.Router();
+const router = express.Router(); // Use "router" instead of Cartrouter
 
 router.post("/add", verifyUserToken, validateCartData, addToCart);
-router.get("/", verifyUserToken, getCart);
+router.get("/getCart", verifyUserToken, getCart);
 router.put("/:itemId", verifyUserToken, validateCartData, updateCartItem);
 router.delete("/:itemId", verifyUserToken, removeCartItem);
 router.delete("/clear", verifyUserToken, clearCart);
