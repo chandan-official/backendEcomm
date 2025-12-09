@@ -7,7 +7,7 @@ import {
   setDefaultAddress,
 } from "../controller/profileController.js";
 import validateAddress from "../middleware/validateProfile.js";
-import verifyToken from "../token-config/verifyToken.js";
+import { verifyToken } from "../token-config/verifyToken.js";
 
 const router = express.Router();
 

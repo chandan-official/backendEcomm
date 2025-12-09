@@ -7,7 +7,6 @@ import connectDB from "./src/config/db.js";
 
 // Routes
 import router from "./src/routes/authRoute.js";
-import invoiceRouter from "./src/routes/invoiceRoutes.js";
 import productRouter from "./src/routes/productRoutes.js";
 import categoryRoutes from "./src/routes/categoryRoutes.js";
 import profileRoutes from "./src/routes/profileRoutes.js";
@@ -15,26 +14,36 @@ import adminRoutes from "./src/routes/adminRoutes.js";
 import vendorRoutes from "./src/routes/vendorRoutes.js";
 import Cartrouter from "./src/routes/cartRoutes.js";
 import OrderRoutes from "./src/routes/orderRoutes.js";
+import AddressRoute from "./src/routes/addressRoute.js";
 
 dotenv.config();
 
 const app = express();
-
-// Needed to detect https when behind NGINX/Hostinger proxy
 app.set("trust proxy", 1);
 
-// Middlewares
+// 🔥 FIXED CORS (NO MORE BLOCKED GET CALLS)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-api-key"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(helmet());
-app.use(
-  cors({
-    origin: "*", // change later to your frontend domain
-    credentials: true,
-  })
-);
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 
-// Connect DB
+// DB
 connectDB()
   .then(() => console.log("DB connected successfully"))
   .catch((err) => {
@@ -42,9 +51,8 @@ connectDB()
     process.exit(1);
   });
 
-// Routes
+// ROUTES
 app.use("/api/auth", router);
-app.use("/api/invoice", invoiceRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/profile", profileRoutes);
@@ -52,20 +60,19 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/cart", Cartrouter);
 app.use("/api/orders", OrderRoutes);
+app.use("/api/addresses", AddressRoute);
 
-// Root
+// Test Route
 app.get("/", (req, res) => {
-  const baseUrl = req.protocol + "://" + req.get("host");
-  res.send(`API running at: ${baseUrl}`);
+  res.send(`API running`);
 });
 
-// Global Error Handler
+// Error Handler
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
   res.status(500).json({ success: false, message: "Server Error" });
 });
 
-// Start Server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

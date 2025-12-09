@@ -9,7 +9,7 @@ import {
   getAlladminOrders,
   updateAdminOrderStatus,
 } from "../controller/AdminOrderController.js";
-import { verifyToken, verifyAdmin } from "../token-config/verifyToken.js";
+import { verifyToken, verifyVendor } from "../token-config/verifyToken.js";
 
 const router = express.Router();
 
@@ -25,14 +25,14 @@ router.get(
 
   getAlladminOrders,
   verifyToken,
-  verifyAdmin
+  verifyVendor
 );
 router.put(
   "/order/:id/status",
 
   updateAdminOrderStatus,
   verifyToken,
-  verifyAdmin
+  verifyVendor
 );
 
 export default router;

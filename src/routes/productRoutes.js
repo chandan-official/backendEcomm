@@ -1,4 +1,3 @@
-// src/routes/productRoute.js
 import express from "express";
 import {
   createProduct,
@@ -10,31 +9,34 @@ import {
 
 import upload from "../middleware/multer.js";
 import { validateProduct } from "../middleware/validateProduct.js";
-import verifyToken from "../token-config/verifyToken.js";
-import { verifyAdmin } from "../middleware/verifyAdmin.js";
+
+// FIXED IMPORT ↓↓↓
+import { verifyToken, verifyVendor } from "../token-config/verifyToken.js";
 
 const router = express.Router();
 
-// Public
+// Public Routes
 router.get("/getProducts", getProducts);
 router.get("/getProductById/:id", getProductById);
 
-// Protected (Admin)
+// Admin Routes
 router.post(
   "/addproduct",
-  // verifyToken,
-  // verifyAdmin,
+  verifyToken,
+  verifyVendor,
   upload.fields([{ name: "productImageurls", maxCount: 6 }]),
   validateProduct,
   createProduct
 );
+
 router.put(
   "/update/:id",
-  // verifyToken,
-  // verifyAdmin,
+  verifyToken,
+  verifyVendor,
   upload.fields([{ name: "productImageurls", maxCount: 6 }]),
   updateProduct
 );
-router.delete("/:id", verifyToken, verifyAdmin, deleteProduct);
+
+router.delete("/:id", verifyToken, verifyVendor, deleteProduct);
 
 export default router;

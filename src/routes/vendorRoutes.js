@@ -50,14 +50,27 @@ router.get("/profile", vendorAuth, getVendorProfile);
 router.put("/profile", vendorAuth, updateVendorProfile);
 
 // Vendor Product CRUD Routes
+// Vendor Product CRUD Routes
 router.post(
   "/products",
   vendorAuth,
-
+  upload.fields([
+    { name: "productImageurls", maxCount: 10 }, // ADD THIS LINE
+  ]),
   createVendorProduct
 );
 
-router.get("/products", vendorAuth, getVendorProducts);
+router.get(
+  "/products",
+  verifyToken,
+  (req, res, next) => {
+    if (req.user.role !== "vendor" && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    next();
+  },
+  getVendorProducts
+);
 
 router.put("/products/:id", vendorAuth, updateVendorProduct);
 

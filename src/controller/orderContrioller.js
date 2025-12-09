@@ -1,4 +1,5 @@
 import Order from "../models/orderModel.js";
+import Cart from "../models/cartModel.js";
 
 export const createOrder = async (req, res) => {
   const userId = req.user.id;
@@ -52,7 +53,7 @@ export const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
 
   try {
-    const existingOrder = await order.findById(orderId);
+    const existingOrder = await Order.findById(orderId);
     if (!existingOrder)
       return res.status(404).json({ message: "Order not found" });
 
@@ -92,7 +93,7 @@ export const cancelOrder = async (req, res) => {
   const { orderId } = req.params;
 
   try {
-    const existingOrder = await order.findById(orderId);
+    const existingOrder = await Order.findById(orderId);
     if (!existingOrder)
       return res.status(404).json({ message: "Order not found" });
 
