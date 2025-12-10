@@ -22,22 +22,15 @@ const app = express();
 app.set("trust proxy", 1);
 
 // 🔥 FIXED CORS (NO MORE BLOCKED GET CALLS)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, x-api-key"
-  );
+import cors from "cors";
 
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
+app.use(cors({
+  origin: ["http://localhost:3000", "http://your-frontend-domain.com"],
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization","x-api-key"],
+  credentials: true
+}));
+
 
 app.use(helmet());
 app.use(express.json({ limit: "10mb" }));
